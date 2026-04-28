@@ -2,7 +2,7 @@ export function initResults(appState, navigate) {
     const btnAnother = document.getElementById('btnAnalyzeAnother');
     const btnExport = document.getElementById('btnExportReport');
     
-    // Result elements
+    // Result elements okay
     const resCertainty = document.getElementById('resCertainty');
     const resChip = document.getElementById('resChip');
     const resTitle = document.getElementById('resTitle');
