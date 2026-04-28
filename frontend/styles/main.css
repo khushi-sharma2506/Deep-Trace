@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&display=swap');
 :root {
   /* Colors */
   --surface: #0e1419;
@@ -55,7 +55,7 @@
   --outline-variant: #414754;
 
   /* Typography */
-  --font-headline: 'Space Grotesk', sans-serif;
+  --font-headline: 'Orbitron', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-label: 'Inter', sans-serif;
 
@@ -206,6 +206,7 @@ button {
   gap: 0.5rem;
   transition: all 0.3s ease;
   box-shadow: 0 0 20px rgba(0, 218, 243, 0.15);
+  
 }
 
 .btn-primary:hover:not(:disabled) {
