@@ -336,7 +336,7 @@ main {
   flex-grow: 1;
 }
 
-/* App View Router */
+/*App View Router 
 .view {
   display: none;
   opacity: 0;
@@ -347,6 +347,24 @@ main {
   display: flex;
   flex-direction: column;
   opacity: 1;
+}
+*/
+/* App View Router - UPDATED */
+.view {
+    display: none !important; /* Hide everything by default */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.view.active {
+    display: flex !important; /* Show active view as flex */
+    flex-direction: column;
+    opacity: 1;
+}
+
+/* Ensure .hidden always wins unless .active is present */
+.hidden {
+    display: none !important;
 }
 
 /* Header & Footer */

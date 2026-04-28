@@ -1,8 +1,8 @@
 export function initResults(appState, navigate) {
     const btnAnother = document.getElementById('btnAnalyzeAnother');
     const btnExport = document.getElementById('btnExportReport');
-    
-    // Result elements okay
+
+    // Result elements
     const resCertainty = document.getElementById('resCertainty');
     const resChip = document.getElementById('resChip');
     const resTitle = document.getElementById('resTitle');
@@ -11,22 +11,20 @@ export function initResults(appState, navigate) {
     const vectorSection = document.getElementById('vectorSection');
     const resCircle = document.getElementById('resCircle');
 
-    btnAnother.addEventListener('click', () => {
-        // State reset handled by app.js or upload.js
+    btnAnother?.addEventListener('click', () => {
         navigate('view-upload');
     });
 
-    btnExport.addEventListener('click', () => {
-        // Simple toast implementation without external dependencies
+    btnExport?.addEventListener('click', () => {
         const existingToast = document.getElementById('toastMsg');
         if (existingToast) existingToast.remove();
-        
+
         const toast = document.createElement('div');
         toast.id = 'toastMsg';
         toast.textContent = 'Report export coming soon';
         toast.className = 'fixed bottom-6 right-6 bg-surface-container-high text-on-surface px-6 py-3 rounded-lg shadow-lg border border-outline-variant/20 z-50 transition-opacity font-label text-sm';
         document.body.appendChild(toast);
-        
+
         setTimeout(() => {
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 300);
@@ -34,46 +32,53 @@ export function initResults(appState, navigate) {
     });
 
     return function renderResults() {
-        if (!appState.result) return;
+        if (!appState.result) {
+            console.warn('renderResults called but appState.result is empty');
+            return;
+        }
 
         const { prediction, confidence } = appState.result;
         const filename = appState.filename || 'unknown_artifact.xyz';
         const isFake = prediction === 'FAKE';
-        
+
+        // Parse confidence — backend sends e.g. "87.50%" or a plain number
+        const rawConf = String(confidence).replace('%', '');
+        const confidenceNum = parseFloat(rawConf) / 100;
+
         // Update DOM
-        resCertainty.textContent = `${(confidence * 100).toFixed(1)}%`;
+        resCertainty.textContent = typeof confidence === 'string' && confidence.includes('%')
+            ? confidence
+            : `${parseFloat(rawConf).toFixed(2)}%`;
         resFilename.textContent = filename;
-        
+
         if (isFake) {
             resChip.className = 'chip-fake-lg mb-6';
             resChip.textContent = 'FAKE';
             resTitle.textContent = 'Synthetic Manipulation Detected';
             resDesc.textContent = 'High-probability neural artifacts identified. Spectral analysis reveals non-organic consistency in the digital noise floor.';
-            vectorSection.classList.remove('hidden');
-            resCircle.classList.remove('real');
-            resCircle.classList.add('fake');
+            vectorSection?.classList.remove('hidden');
+            resCircle?.classList.remove('real');
+            resCircle?.classList.add('fake');
         } else {
             resChip.className = 'chip-real-lg mb-6';
             resChip.textContent = 'REAL';
             resTitle.textContent = 'Authentic Artifact';
             resDesc.textContent = 'No synthetic manipulation detected. Temporal consistency and spectral metadata match expected organic patterns.';
-            vectorSection.classList.add('hidden'); // Hide vectors for REAL to keep it clean
-            resCircle.classList.remove('fake');
-            resCircle.classList.add('real');
+            vectorSection?.classList.add('hidden');
+            resCircle?.classList.remove('fake');
+            resCircle?.classList.add('real');
         }
 
-        // Animate Circle
-        // 2 * Math.PI * R (where R=88) = 552.92
+        // Animate circle — reset first, then animate to final offset
         const circumference = 552.92;
+        resCircle.style.transition = 'none';
         resCircle.style.strokeDasharray = circumference;
-        // Start empty
         resCircle.style.strokeDashoffset = circumference;
-        
-        // Trigger reflow
-        resCircle.getBoundingClientRect();
-        
-        // Animate to confidence level
-        const offset = circumference - (confidence * circumference);
+
+        resCircle.getBoundingClientRect(); // force reflow
+
+        const offset = circumference - (confidenceNum * circumference);
+        resCircle.style.transition = 'stroke-dashoffset 1s ease';
         setTimeout(() => {
             resCircle.style.strokeDashoffset = offset;
         }, 100);

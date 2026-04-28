@@ -28,7 +28,7 @@ export function initUpload(appState, navigate) {
         e.stopPropagation();
     }
 
-    // Highlight dropzone
+    // Highlight dropzone on drag
     ['dragenter', 'dragover'].forEach(eventName => {
         dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
     });
@@ -39,8 +39,7 @@ export function initUpload(appState, navigate) {
 
     // Handle dropped files
     dropzone.addEventListener('drop', (e) => {
-        const files = e.dataTransfer.files;
-        handleFiles(files);
+        handleFiles(e.dataTransfer.files);
     }, false);
 
     // Handle browse click
@@ -48,12 +47,12 @@ export function initUpload(appState, navigate) {
         fileInput.click();
     });
 
-    // Handle input change
-    fileInput.addEventListener('change', function(e) {
+    // Handle file input change
+    fileInput.addEventListener('change', function () {
         handleFiles(this.files);
     });
 
-    // Remove file
+    // Remove file — reset to empty state
     removeBtn.addEventListener('click', () => {
         currentFile = null;
         fileInput.value = '';
@@ -62,11 +61,14 @@ export function initUpload(appState, navigate) {
         errorBox.classList.add('hidden');
     });
 
-    // Handle Analyze button
-    analyzeBtn.addEventListener('click', async () => {
+    // Handle Analyze button click
+    analyzeBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
         if (!currentFile) return;
 
-        // Set Loading State
+        // Set loading state
         analyzeBtn.disabled = true;
         analyzeBtnText.textContent = 'Analyzing...';
         analyzeBtnIcon.textContent = 'autorenew';
@@ -76,22 +78,22 @@ export function initUpload(appState, navigate) {
 
         try {
             const data = await predict(currentFile);
-            
-            // Update global state
+
+            // Store results in shared state
             appState.file = currentFile;
             appState.filename = currentFile.name;
             appState.result = data;
-
-            // Reset upload UI for next time
-            removeBtn.click();
-            
-            // Navigate to results
+            // Ensure the result view is definitely not hidden by CSS
+            document.getElementById('view-result').classList.remove('hidden');
+            // Navigate — navigate() handles all view visibility
             navigate('view-result');
+
         } catch (error) {
+            console.error('Analysis failed:', error);
             errorBox.textContent = error.message || 'An error occurred during analysis.';
             errorBox.classList.remove('hidden');
         } finally {
-            // Remove Loading State
+            // Reset loading state
             analyzeBtn.disabled = false;
             analyzeBtnText.textContent = 'Analyze File';
             analyzeBtnIcon.textContent = 'arrow_forward';
@@ -102,11 +104,11 @@ export function initUpload(appState, navigate) {
 
     function handleFiles(files) {
         if (files.length === 0) return;
-        
+
         const file = files[0];
         errorBox.classList.add('hidden');
 
-        // Validate type
+        // Validate file type
         const validTypes = ['video/mp4', 'video/quicktime', 'image/jpeg', 'image/png'];
         if (!validTypes.includes(file.type)) {
             errorBox.textContent = 'Invalid file type. Please upload MP4, MOV, JPG, or PNG.';
@@ -114,7 +116,7 @@ export function initUpload(appState, navigate) {
             return;
         }
 
-        // Validate size (100MB limit)
+        // Validate file size (100MB max)
         const maxSize = 100 * 1024 * 1024;
         if (file.size > maxSize) {
             errorBox.textContent = 'File too large. Maximum size is 100MB.';
@@ -123,11 +125,11 @@ export function initUpload(appState, navigate) {
         }
 
         currentFile = file;
-        
-        // Show preview state
+
+        // Show preview
         emptyState.classList.add('hidden');
         previewContainer.classList.remove('hidden');
-        
+
         filenameDisplay.textContent = file.name;
         filesizeDisplay.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB • ${file.type.split('/')[0].toUpperCase()}`;
     }
