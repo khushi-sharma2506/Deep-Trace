@@ -130,5 +130,47 @@ export function initUpload(appState, navigate) {
         
         filenameDisplay.textContent = file.name;
         filesizeDisplay.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB • ${file.type.split('/')[0].toUpperCase()}`;
+
+        // Generate actual media preview
+        const previewArea = previewContainer.querySelector('.relative');
+        if (previewArea) {
+            // Clear old preview content (keep scanline)
+            const oldPreview = previewArea.querySelector('.preview-media');
+            if (oldPreview) oldPreview.remove();
+            const oldPlaceholder = previewArea.querySelector('div:first-child');
+            if (oldPlaceholder) oldPlaceholder.style.display = 'none';
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = file.name;
+                    img.className = 'preview-media';
+                    img.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:var(--radius-md);';
+                    img.onerror = () => {
+                        // Fallback if image is broken
+                        img.remove();
+                        if (oldPlaceholder) oldPlaceholder.style.display = '';
+                    };
+                    previewArea.insertBefore(img, previewArea.firstChild);
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.className = 'preview-media';
+                video.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:var(--radius-md);';
+                video.muted = true;
+                video.playsInline = true;
+                video.preload = 'metadata';
+                video.onloadeddata = () => video.currentTime = 1; // Seek to 1s for thumbnail
+                video.onerror = () => {
+                    video.remove();
+                    if (oldPlaceholder) oldPlaceholder.style.display = '';
+                };
+                previewArea.insertBefore(video, previewArea.firstChild);
+            }
+        }
     }
 }

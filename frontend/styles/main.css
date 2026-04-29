@@ -293,6 +293,32 @@ button {
     display: inline-block;
 }
 
+.chip-likely-fake-lg {
+    background-color: rgba(255, 170, 51, 0.15);
+    color: #ffaa33;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-headline);
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.chip-likely-real-lg {
+    background-color: rgba(126, 207, 126, 0.15);
+    color: #7ecf7e;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-headline);
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
 
 /* Animations */
 @keyframes scanline {
@@ -429,9 +455,11 @@ header.top-nav {
   fill: none;
   stroke-width: 3;
   stroke-linecap: round;
-  transition: stroke-dasharray 1s ease-out;
+  transition: stroke-dashoffset 1s ease-out, stroke-dasharray 0.3s ease;
 }
-.circle.fake { stroke: var(--error); }
+.circle.fake { stroke: #ff6b6b; }
+.circle.likely-fake { stroke: #ffaa33; }
+.circle.likely-real { stroke: #7ecf7e; }
 .circle.real { stroke: var(--primary); }
 
 /* Feature Cards */
